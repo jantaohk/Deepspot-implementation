@@ -296,11 +296,11 @@ def main(image_path, output_path, rna_path, cells_path, run_steps, gene_list):
                 print("If the above message states file path doesn't exist, please run bulk_rna first.")
 
         if "cell_type" in run_steps:            
-            #try:                    
-            cell_type_analysis(output_path, cells_path, slide_path, image_code, csv_file_path, 16, 30, [1], summary_df)
+            try:                    
+                cell_type_analysis(output_path, cells_path, slide_path, image_code, csv_file_path, 16, 30, [1], summary_df)
 
-            #except Exception as e:
-             #   print(f"Error: {e}")
+            except Exception as e:
+                print(f"Error: {e}")
                 
     if "rna_corr" and "cell_type" in run_steps:
         file_name= os.path.join(output_path, "weird images summary.csv")        
