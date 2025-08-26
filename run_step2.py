@@ -250,7 +250,7 @@ def main(image_path, output_path, rna_path, cells_path, run_steps, gene_list):
     home_dir= os.path.expanduser("~")
     summary_df= pd.DataFrame()
     
-    for name in os.listdir(image_path):
+    for name in tqdm(os.listdir(image_path)):
         if not name.lower().endswith(".svs"):
             continue
             
