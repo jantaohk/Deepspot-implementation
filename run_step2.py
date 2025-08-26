@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import openslide
+from tqdm import tqdm
 from scipy.stats import zscore, pearsonr, spearmanr
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
