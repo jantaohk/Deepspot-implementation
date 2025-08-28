@@ -208,6 +208,7 @@ def cell_type_analysis(output_path, cells_path, slide_path, image_code, csv_file
                     ax[i].set_xlabel(f"{cell_type.capitalize()} Count per Tile")
                     ax[i].set_ylabel(f"Predicted {marker} Expression")
                     ax[i].set_title(f"{marker} Pearson r = {corr:.3f}")
+                    summary_df.loc[image_code, f"{marker}"]= corr
                     
                 plt.tight_layout() 
                 file_name= os.path.join(output_path, image_code, f"{image_code} {cell_type} Pearson correlation.png")
@@ -244,7 +245,6 @@ def cell_type_analysis(output_path, cells_path, slide_path, image_code, csv_file
                 file_name= os.path.join(output_path, image_code, f"{image_code} {cell_type} Ground Truth Overlay.png")
                 plt.savefig(file_name)
                 plt.close()
-                summary_df.loc[image_code, f"{cell_type}"]= corr
     return
                 
 def main(image_path, output_path, rna_path, cells_path, run_steps, gene_list):
