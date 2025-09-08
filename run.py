@@ -34,16 +34,15 @@ import math
 import yaml
 import PIL
 from PIL import ImageFile, Image
+from utils import get_image_path
 import openslide
 import argparse
 os.environ["CUDA_VISIBLE_DEVICES"] = "2" # pick an unoccupied GPU
 if __name__== "__main__":
     parser = argparse.ArgumentParser(description="Run DeepSpot pipeline step 1")
-    parser.add_argument("--image_path", required=True, help="Path to folder with .svs images")
     parser.add_argument("--output_path", required=True, help="Path to save outputs, same as the path from run_step2.py")
     parser.add_argument("--UNI_path", required=True, help="Path to feature extraction model")
     args = parser.parse_args()
-    image_path= args.image_path
     output_path= args.output_path
     UNI_path= args.UNI_path
     Image.MAX_IMAGE_PIXELS = None
@@ -76,12 +75,11 @@ if __name__== "__main__":
                                                                                     device=device, model_path=image_feature_model_path)
     morphology_model.to(device)
     morphology_model.eval()
-    for file in tqdm(os.listdir(image_path), desc= "processing files", unit= "file"):
-        if not file.lower().endswith(".svs"):  # skip everything that isn’t .svs
-            continue
-        svs_path= os.path.join(image_path, file)
+    image_paths, image_codes= get_image_path()
+    for i, file in enumerate(tqdm(image_paths, desc= "Processing images")):
+        svs_path= file
         parts= file.split("-")
-        sample= f"{parts[1]}-{parts[2]}"
+        sample= image_codes[i]
         png_path= os.path.join(output_path, f"{sample}.png")
         slide= openslide.OpenSlide(svs_path)
         level= 2
@@ -185,4 +183,4 @@ if __name__== "__main__":
             
         combined_df.to_csv(f"{save_path}/{sample}.csv")
         
-# python DeepSpot/run.py --image_path /home/jantao/images/coad_images --output_path /home/jantao/DeepSpot/test_data --UNI_path /home/jantao/UNI/pytorch_model.bin
+# python DeepSpot/run.py --output_path /home/jantao/deepspot_109 --UNI_path /home/jantao/UNI/pytorch_model.bin
