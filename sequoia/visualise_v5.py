@@ -166,7 +166,7 @@ if __name__=='__main__':
     wsi_file_name = args.wsi_file_name
     project = args.project 
     #save_path = f'./visualizations/{project}/{args.save_folder}/{args.wsi_file_name}/'
-    save_path= os.path.join("/home/jantao/sequoia_109", args.save_folder, args.wsi_file_name)
+    save_path= args.save_folder
     #save_path= "sequoia-outputs/uni_visualisation"
     if not os.path.exists(save_path):
         os.makedirs(save_path)
