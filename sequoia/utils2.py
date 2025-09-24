@@ -11,7 +11,7 @@ from scipy.stats import zscore, pearsonr, spearmanr
 from tqdm import tqdm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-def load_slide(slide_path, level=2):
+def load_slide(slide_path, level=2): # gets metadata from your images
     slide = openslide.OpenSlide(slide_path)
     w, h = slide.level_dimensions[level]
     img = slide.read_region((0, 0), level, (w, h)).convert("RGB")
@@ -19,7 +19,7 @@ def load_slide(slide_path, level=2):
     mpp_y = float(slide.properties.get("openslide.mpp-y", "nan"))
     return slide, img, w, h, mpp_x, mpp_y
     
-def ref_file_gen(output_path):
+def ref_file_gen(output_path): # generates ref_file using info from the lookup table created by info_generation.py. A ref_file is needed to run predictions for SEQUOIA
     ref_file_path= os.path.join(output_path, "ref_file.csv")
     
     if not os.path.exists(os.path.join(output_path, "complete_resize.txt")):
@@ -43,7 +43,7 @@ def ref_file_gen(output_path):
         
     return ref_file_path
     
-def patch_gen(info_csv, patches, masks):
+def patch_gen(info_csv, patches, masks): # generates patches
     print("Generating patches")
     cmd= [
         "python", "sequoia-codes/patch_gen_hdf5-2.py",
@@ -59,7 +59,7 @@ def patch_gen(info_csv, patches, masks):
     subprocess.run(cmd, check= True)
     return
 
-def compute_feat(ref_file_path, patches, uni_features):
+def compute_feat(ref_file_path, patches, uni_features): # extract features using uni from the patches
     print("Computing features")
     cmd= [
         "python", "sequoia-codes/compute_features_hdf5-2.py",
@@ -76,7 +76,7 @@ def compute_feat(ref_file_path, patches, uni_features):
     subprocess.run(cmd, check= True)
     return
 
-def kmeans(ref_file_path, patches, uni_features):
+def kmeans(ref_file_path, patches, uni_features): # kmeans clustering for feature aggregation
     print("Kmeans")
     cmd= [
         "python", "sequoia-codes/kmean_features.py",
@@ -93,7 +93,7 @@ def kmeans(ref_file_path, patches, uni_features):
     subprocess.run(cmd, check= True)
     return
 
-def rna_pred(ref_file_path, uni_features, results_folder):
+def rna_pred(ref_file_path, uni_features, results_folder): # predicts bulk rna
     print("Bulk RNA predictions")
     cmd= [
         "python", "sequoia-codes/predict_independent_dataset.py",
@@ -109,7 +109,7 @@ def rna_pred(ref_file_path, uni_features, results_folder):
     subprocess.run(cmd, check= True)
     return
 
-def rna_corr(info_csv, results, rna_pkl, summary_df, output_path):
+def rna_corr(info_csv, results, rna_pkl, summary_df, output_path): # correlates bulk rna predictions with ground truth bulk rna. See deepspot/run_step2.py for the deepspot equivalent
     print("Bulk RNA correlations")
     info_df= pd.read_csv(info_csv)
     info_df= info_df.set_index("data_id")
@@ -180,13 +180,13 @@ def rna_corr(info_csv, results, rna_pkl, summary_df, output_path):
     summary_df.to_csv(file_name)
     return
     
-def st_pred(info_csv, results, masks):
+def st_pred(info_csv, results, masks): # predicts ST
     print("ST predictions")
     patch_size= 512
     downscale_factor= 16
     display_spacing= patch_size// downscale_factor
     info_df= pd.read_csv(info_csv)
-    gene_names= ["BRAF", "CD68", "EPCAM", "CD3D", "CD3E", "CD3G"]
+    gene_names= ["BRAF", "CD68", "EPCAM", "CD3D", "CD3E", "CD3G"] # full list of genes can be found here: https://github.com/gevaertlab/sequoia-pub/blob/master/examples/gene_list.csv
     
     for row in tqdm(info_df.itertuples(index= False)):
         save_folder= os.path.join(results, row.patient_barcode)
@@ -212,10 +212,10 @@ def st_pred(info_csv, results, masks):
     
         ]
         subprocess.run(cmd, check= True)        
-        df= pd.read_csv(os.path.join(row.image_path, save_name)).dropna(how= "any")
+        df= pd.read_csv(os.path.join(save_folder, save_name)).dropna(how= "any")
         df["xcoord"] = df["xcoord"] // downscale_factor
         df["ycoord"] = df["ycoord"] // downscale_factor
-        slide, img, w, h, *_= load_slide(slide_path, level= 2)
+        slide, img, w, h, *_= load_slide(row.image_path, level= 2)
         
         for gene in gene_names: 
             file_name= os.path.join(save_folder, f"{gene}.png")
@@ -233,3 +233,4 @@ def st_pred(info_csv, results, masks):
             plt.close()
 
     return
+# function for cell type correlation has not been created. Can convert from the equivalent function from outdated/run_step2.py
