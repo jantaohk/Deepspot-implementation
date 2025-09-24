@@ -1,7 +1,7 @@
 import pandas as pd
 import openslide
 
-def load_slide(slide_path, level=2):
+def load_slide(slide_path, level):
     slide = openslide.OpenSlide(slide_path)
     w, h = slide.level_dimensions[level]
     img = slide.read_region((0, 0), level, (w, h)).convert("RGB")
@@ -12,9 +12,9 @@ def load_slide(slide_path, level=2):
     #plt.axis("off")
     #plt.show()
     
-    return slide, img, w, h, mpp_x, mpp_y
+    return slide, w, h, img, mpp_x, mpp_y
     
-def get_image_path():
+def get_image_path(): # gets image metadata
     image_paths= []
     image_codes= []
     csv_path= "/home/jantao/TCGA_Validation_109WSIs.csv"
@@ -28,7 +28,7 @@ def get_image_path():
         
     return image_paths, image_codes
 
-def convert_cell_table(info_df, image_code, slide_path):
+def convert_cell_table(info_df, image_code, slide_path): # ignore this function
     *_, mpp_x, mpp_y= load_slide(slide_path, level= 2)
     edited_image_code= "TCGA-"+ image_code
     cell= info_df.loc[info_df["patient_barcode"]== edited_image_code, "cell_data_path"]
