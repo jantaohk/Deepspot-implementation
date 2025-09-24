@@ -148,13 +148,13 @@ def rna_correlation_visualisation(info_df, output_path, image_code, summary_df):
     return
 
 def cell_type_analysis(output_path, slide_path, image_code, csv_file_path, downscale_factor, base_tile_size, scale_factors, summary_df, info_df): # extrapolates gene expression to cell type prediction
-    print("Cell type analysis")
-    cell= convert_cell_table(info_df, image_code, slide_path)
+    print("Cell type analysis") # please see the version in the outdated folder on github. This has been adapted incorrectly and will not run properly
+    cell= convert_cell_table(info_df, image_code, slide_path) # this function is wrong
     cell_types= {
         "lymphocyte": ["CD3D", "CD3E", "CD3G"],
         "tumor": ["EPCAM"]
     }
-    preds= pd.read_csv(csv_file_path)
+    preds= pd.read_csv(csv_file_path) # you may have to uncomment the below 4 lines. again, see the outdated version
     #preds["xcoord"]= preds["xcoord"]// downscale_factor
     #preds["ycoord"]= preds["ycoord"]// downscale_factor
     #cell["x"]= cell["x"]// 4
