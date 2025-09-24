@@ -49,9 +49,9 @@ if __name__== "__main__":
     ImageFile.LOAD_TRUNCATED_IMAGES = True
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     white_cutoff = 200
-    model_weights = 'DeepSpot/DeepSpot_pretrained_model_weights/Colon_HEST1K/final_model.pkl'
-    model_hparam = 'DeepSpot/DeepSpot_pretrained_model_weights/Colon_HEST1K/top_param_overall.yaml'
-    gene_path = 'DeepSpot/DeepSpot_pretrained_model_weights/Colon_HEST1K/info_highly_variable_genes.csv'
+    model_weights = 'DeepSpot/DeepSpot_pretrained_model_weights/Colon_HEST1K/final_model.pkl' ######
+    model_hparam = 'DeepSpot/DeepSpot_pretrained_model_weights/Colon_HEST1K/top_param_overall.yaml' #####
+    gene_path = 'DeepSpot/DeepSpot_pretrained_model_weights/Colon_HEST1K/info_highly_variable_genes.csv' #####
     with open(model_hparam, "r") as stream:
         config = yaml.safe_load(stream)
     n_mini_tiles= 9
