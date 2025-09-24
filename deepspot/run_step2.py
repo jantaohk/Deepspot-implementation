@@ -12,7 +12,7 @@ from scipy.stats import zscore, pearsonr, spearmanr
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from utils import load_slide, get_image_path, convert_cell_table
     
-def scaled_tile_sizes(cell, base_tile_size, scale_factors):
+def scaled_tile_sizes(cell, base_tile_size, scale_factors): # this scales patch sizes according to the ratio of number of tumor cells over the number of lymphocytes. This may help with reducing the effect of noise when correlating gene expression with cell distribution. Currently set to 1, so no scaling done. Might be complicated to understand, just keep it as is if in doubt
     counts = cell["cell_label"].value_counts()
     tumor_count = counts.get("tumor", 1)
     lymph_count = counts.get("lymphocyte", 1)
@@ -23,7 +23,7 @@ def scaled_tile_sizes(cell, base_tile_size, scale_factors):
         "lymphocyte": [int(base_tile_size* rel_abundance* sf) for sf in scale_factors],
     }
         
-def resize_csv_coordinates(csv_file_path, output_path, image_code):
+def resize_csv_coordinates(csv_file_path, output_path, image_code): # unifies the coordinates system by multiplying by 160. Creates and checks for a flag file to ensure it is run only once
     # need to run this before any of the following functions
     print("Resizing coordinates")        
     df = pd.read_csv(csv_file_path)
@@ -42,7 +42,7 @@ def resize_csv_coordinates(csv_file_path, output_path, image_code):
         
     return
 
-def st_prediction_heatmap(csv_file_path, output_path, slide_path, image_code, downscale_factor, patch_size, s, base_tile_size, gene_list):
+def st_prediction_heatmap(csv_file_path, output_path, slide_path, image_code, downscale_factor, patch_size, s, base_tile_size, gene_list): # creates ST prediction heatmap
     print("ST predictions")
     save_dir= os.path.join(output_path, image_code)        
     display_spacing= patch_size// downscale_factor
@@ -54,13 +54,13 @@ def st_prediction_heatmap(csv_file_path, output_path, slide_path, image_code, do
     df[[f"{m}_z" for m in markers]] = df[markers].apply(zscore)    
     df["CD3_normalised"] = df[["CD3D_z", "CD3E_z", "CD3G_z"]].mean(axis=1)
     df["lymphocytes"] = df[[f"{m}_z" for m in markers]].mean(axis=1)
-    slide, img, w, h, *_= load_slide(slide_path, level= 2)
+    slide, w, h, img, *_= load_slide(slide_path, level= 2)
     
     for gene in gene_list: 
         file_name= os.path.join(save_dir, f"{gene}.png")
         fig, ax = plt.subplots(figsize=(12, 8))
         ax.imshow(img)
-        sc = ax.scatter(df["xcoord"], df["ycoord"], c=df[gene], cmap="viridis", alpha=1, s=s)
+        sc = ax.scatter(df["xcoord"], df["ycoord"], c=df[gene], cmap="viridis", alpha=1)#, s=s)
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.1)
         cbar = fig.colorbar(sc, cax=cax)
@@ -73,7 +73,7 @@ def st_prediction_heatmap(csv_file_path, output_path, slide_path, image_code, do
 
     return
 
-def bulk_rna(csv_file_path, output_path, image_code):
+def bulk_rna(csv_file_path, output_path, image_code): # calculates the bulk rna prediction data from ST prediction by taking the average expression of each gene and adding it at the very last row of the csv file
     df= pd.read_csv(csv_file_path)
     bulk_rna = df.iloc[:, 4:].mean()
     new_row = pd.Series([None]*4 + list(bulk_rna), index=df.columns)
@@ -82,7 +82,7 @@ def bulk_rna(csv_file_path, output_path, image_code):
     df.to_csv(file_name)    
     return
 
-def rna_correlation_visualisation(info_df, output_path, image_code, summary_df):
+def rna_correlation_visualisation(info_df, output_path, image_code, summary_df): # correlates the bulk rna prediction data from the previous function with ground truth
     # need to run bulk_rna first to run this
     print("Bulk RNA correlations")
     csv_path= os.path.join(output_path, image_code, f"edited_{image_code}.csv")
@@ -143,11 +143,11 @@ def rna_correlation_visualisation(info_df, output_path, image_code, summary_df):
                 }        
                 rna_df = pd.DataFrame([stats])
                 rna_df.to_csv(os.path.join(save_dir, f"{image_code} {i}.csv"), index= False)
-                summary_df.loc[f"{image_code}{i}", ["Bulk RNA Pearson", "Bulk RNA Spearman", "Bulk RNA logged Pearson"]]= [pearson_corr, spearman_corr, logged_pearson_corr]
+                summary_df.loc[f"{image_code}-{i}", ["Bulk RNA Pearson", "Bulk RNA Spearman", "Bulk RNA logged Pearson"]]= [pearson_corr, spearman_corr, logged_pearson_corr]
             
     return
 
-def cell_type_analysis(output_path, slide_path, image_code, csv_file_path, downscale_factor, base_tile_size, scale_factors, summary_df, info_df):
+def cell_type_analysis(output_path, slide_path, image_code, csv_file_path, downscale_factor, base_tile_size, scale_factors, summary_df, info_df): # extrapolates gene expression to cell type prediction
     print("Cell type analysis")
     cell= convert_cell_table(info_df, image_code, slide_path)
     cell_types= {
@@ -155,10 +155,10 @@ def cell_type_analysis(output_path, slide_path, image_code, csv_file_path, downs
         "tumor": ["EPCAM"]
     }
     preds= pd.read_csv(csv_file_path)
-    preds["xcoord"]= preds["xcoord"]// downscale_factor
-    preds["ycoord"]= preds["ycoord"]// downscale_factor
-    cell["x"]= cell["x"]// 4
-    cell["y"]= cell["y"]// 4
+    #preds["xcoord"]= preds["xcoord"]// downscale_factor
+    #preds["ycoord"]= preds["ycoord"]// downscale_factor
+    #cell["x"]= cell["x"]// 4
+    #cell["y"]= cell["y"]// 4
     preds = preds[["xcoord", "ycoord"] + sum(cell_types.values(), [])].dropna() 
     tile_sizes= scaled_tile_sizes(cell, base_tile_size, scale_factors)
     print(tile_sizes)
@@ -201,8 +201,7 @@ def cell_type_analysis(output_path, slide_path, image_code, csv_file_path, downs
             plt.savefig(file_name)
             plt.close()
             threshold= 0
-            slide, img, w, h, *_= load_slide(slide_path, level= 2)
-            W_img, H_img = img.size
+            slide, W_img, H_img, *_= load_slide(slide_path, level= 0)
             count_map = np.zeros((H_img, W_img), dtype=np.float32)
             
             for _, row in preds.iterrows():
@@ -240,7 +239,7 @@ def main(output_path, run_steps, gene_list):
     home_dir= os.path.expanduser("~")
     summary_df= pd.DataFrame()
     image_paths, image_codes= get_image_path()
-    info_df= pd.read_csv("/home/jantao/109_info.csv")
+    info_df= pd.read_csv("/home/jantao/109_info.csv") ##### change this path to where your look up table is, created by info_generation.py
     
     for i, slide_path in enumerate(tqdm(image_paths)):
         image_code= image_codes[i]
@@ -302,7 +301,7 @@ if __name__== "__main__":
     parser.add_argument("--run_steps", nargs="+", default=["resize_csv","st_pred","bulk_rna","rna_corr","cell_type"],
                         help="Pipeline steps to run, can be run individually with some exceptions: resize_csv must be run before downstream functions, and bulk_rna must be run before rna_corr")
     parser.add_argument("--gene_list", nargs="+", default=["EPCAM","CD3D","CD3E","CD3G"],
-                        help="List of genes to analyse")
+                        help="List of genes to analyse. See info_highly_variable_genes.csv for the full list")
     args = parser.parse_args()
     output_path= args.output_path
     run_steps= args.run_steps
