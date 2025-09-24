@@ -7,12 +7,31 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "1" # pick an unoccupied GPU
     
 def main(run_steps, info_csv, output_path):
     ref_file_gen(output_path)
+    
     patches= os.path.join(output_path, "patches")
+    if not os.path.exists(patches):
+        os.makedirs(patches)
+        
     masks= os.path.join(output_path, "masks")
+    if not os.path.exists(masks):
+        os.makedirs(masks)
+        
     uni_features= os.path.join(output_path, "uni_features")
+    if not os.path.exists(uni_features):
+        os.makedirs(uni_features)
+        
     results_folder= os.path.join(output_path, "uni_results")
+    if not os.path.exists(results_folder):
+        os.makedirs(results_folder)
+        
     results= os.path.join(results_folder, "sequoia_109")
+    if not os.path.exists(results):
+        os.makedirs(results)
+        
     rna_pkl= os.path.join(results, "test_results.pkl")
+    if not os.path.exists(rna_pkl):
+        os.makedirs(rna_pkl)
+        
     summary_df= pd.DataFrame()
     
     if "patch_gen" in run_steps:
