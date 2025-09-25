@@ -1,6 +1,6 @@
 # Directory layout
 
-Here is the description of my directory, in alphabetical order. Important files/folders are in **bold**
+Here is the description of my directory, in alphabetical order. Important files/folders are in **bold**. Some might not exist anymore
 <br>
 <br>
 
@@ -79,6 +79,12 @@ Cloned directly from https://github.com/daviddaiweizhang/istar/tree/master and h
 istar-env and loki-env
 
 The virtual environment set up for istar
+<br>
+<br>
+
+journal.docx
+
+My documented thoughts
 <br>
 <br>
 
@@ -263,4 +269,5 @@ UNI
 Cloned from https://github.com/mahmoodlab/UNI
 <br>
 <br>
+
 
