@@ -1,0 +1,10 @@
+folders you should definitely keep. For their descriptions see Directory layout.md
+109_info.csv
+DeepSpot
+deepspot_109
+deepspot-env
+MSI_prediction
+sequoia_109
+sequoia-codes
+sequoia-env
+sequoia-outputs
