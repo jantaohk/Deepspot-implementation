@@ -115,6 +115,32 @@ Folders in tiles/BLOCKS are the same as the TCGA folders a level above
 <br>
 
 **MSI\_prediction**
+
+Folder for work done to predict MSI status
+
+conch_patches: Contains patches and features extracted by TRIDENT. Also some h5 files containing aggregated CONCH features, the direct input for prediction modules
+
+uni_masks: masks for all images in the entire Harvard dataset, including those that are not included in the analysis
+
+better_patches.h5: UNI patches extracted after the masking protocol
+
+better_uni_features.h5: Features extracted from better_patches.h5
+
+conch.ipynb: Prediction workflow using CONCH
+
+features.h5: UNI features extracted from patches.h5
+
+mean_aggregated_better_uni_features.h5: the aggregated version of better_uni_features.h5
+
+mean_aggregated_features.h5: the aggregated version of features.h5
+
+patches.h5: UNI patches extracted without using the masking protocol
+
+preprocessed_data.pkl: Contains info for dataset cohort. Which images/ patients should belong in either training or validation sets of each fold, or if it should be in hold-out test set. Used only with the CONCH workflow
+
+preprocessing.py: Used to run feature extraction overnight for UNI. Likely to be outdated, do not recommend using
+
+uni.ipynb: prediction workflow using UNI
 <br>
 <br>
 
@@ -237,3 +263,4 @@ UNI
 Cloned from https://github.com/mahmoodlab/UNI
 <br>
 <br>
+
